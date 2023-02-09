@@ -469,3 +469,33 @@ test('allow to shadow already shadowed field', () => {
   })
   expect(extended).toHaveProperty('firstName', 'JOHN!')
 })
+
+test('does not mess with hasOwn', () => {
+  const result = {
+    firstName: 'John',
+    lastName: 'Smith',
+  }
+
+  expect(Object.hasOwn(result, 'some prop that does not exist')).toBeFalsy()
+
+  const extension = {
+    result: {
+      user: {
+        fullName: {
+          needs: { firstName: true, lastName: true },
+          compute(user) {
+            return `${user.firstName} ${user.lastName}`
+          },
+        },
+      },
+    },
+  }
+
+  const extended = applyResultExtensions({
+    result,
+    modelName: 'user',
+    extensions: MergedExtensionsList.single(extension),
+  })
+
+  expect(Object.hasOwn(extended, 'some prop that does not exist')).toBeFalsy()
+})
